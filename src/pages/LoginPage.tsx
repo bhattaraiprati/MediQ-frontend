@@ -41,10 +41,10 @@ export default function LoginPage() {
   switch (decoded.role) {
     case 'user':
       navigate('/dashboard');
-      break;        // ← was missing
+      break;        
     case 'admin':
       navigate('/admin');
-      break;        // ← was missing
+      break;        
     default:
       navigate('/');
   }
