@@ -1,9 +1,9 @@
 import { DecodedToken, LoginCredentials, RegisterCredentials, User } from "@/types"
 import { jwtDecode } from "jwt-decode"
 
-const BASE_URL = 'http://localhost:5000/api/auth'
-const TOKEN_KEY = 'mediq_token'
-const USER_KEY = 'mediq_user'
+export const BASE_URL = 'http://localhost:5000/api'
+export const TOKEN_KEY = 'mediq_token'
+export const USER_KEY = 'mediq_user'
 
 // Decode JWT payload
 function decodeToken(token: string): User | null {
@@ -23,10 +23,10 @@ function decodeToken(token: string): User | null {
   }
 }
 
-async function request<T>(
+const request = async <T>(
   endpoint: string,
   options: RequestInit = {}
-): Promise<T> {
+): Promise<T> =>{
 
   const token = localStorage.getItem(TOKEN_KEY)
 
@@ -59,7 +59,7 @@ export const authApi = {
 
   async login(credentials: LoginCredentials) {
 
-    const data = await request<{ token: string }>('/login', {
+    const data = await request<{ token: string }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
     })
@@ -79,7 +79,7 @@ export const authApi = {
 
   async register(credentials: RegisterCredentials) {
 
-    const data = await request<{ token: string }>('/register', {
+    const data = await request<{ token: string }>('/auth/register', {
       method: 'POST',
       body: JSON.stringify(credentials),
     })

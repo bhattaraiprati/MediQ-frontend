@@ -25,3 +25,27 @@ export interface DecodedToken {
   exp: number; // Expiration time in seconds
   iat: number; // Issued at time
 }
+
+export interface ChatRoom {
+  id: string
+  title: string
+  created_at: string
+}
+
+export interface ApiMessage {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+  created_at: string
+}
+
+export interface ChatRoomWithMessages extends ChatRoom {
+  messages: ApiMessage[]
+}
+
+export interface SendMessageResponse {
+  success: boolean
+  chat_id: string
+  query: string
+  answer: string
+}

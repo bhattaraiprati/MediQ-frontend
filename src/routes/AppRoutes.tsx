@@ -13,11 +13,11 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/" element={<LoginPage />} />
 
-      {/* <Route element={<ProtectedRoutes  allowedRoles={["user"]}  />}>
+      <Route element={<ProtectedRoutes  allowedRoles={["user"]}  />}>
         <Route path="/dashboard" element={<ChatPage />} />
-      </Route> */}
+      </Route>
 
-      <Route element={<ProtectedRoutes allowedRoles={["user"]} />}>
+      <Route element={<ProtectedRoutes allowedRoles={["admin"]} />}>
         <Route element={<AdminLayout />}>
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/documents" element={<DocumentPage />} />

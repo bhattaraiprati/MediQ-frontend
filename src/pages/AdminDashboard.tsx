@@ -1,11 +1,8 @@
-import { useState } from 'react';
 import { 
-  LayoutDashboard, FileText, Users, BarChart3, Settings, 
+  FileText, Users, BarChart3,  
   Bell, Search, Plus, Upload, CheckCircle, AlertTriangle, 
-  Sidebar
 } from 'lucide-react';
-import Logo from '../components/ui/Logo';
-import LogoBlack from '@/components/ui/LogoBlack';
+
 
 export default function AdminDashboard() {
 
@@ -138,18 +135,18 @@ export default function AdminDashboard() {
 
 /* ====================== Reusable Components ====================== */
 
-function NavItem({ icon: Icon, label, badge, active, onClick }: any) {
-  return (
-    <div 
-      onClick={onClick}
-      className={`flex items-center gap-3 px-4 py-3 rounded-2xl cursor-pointer transition-all text-sm ${active ? 'bg-brand/10 text-brand font-medium' : 'hover:bg-gray-100 text-gray-600'}`}
-    >
-      <Icon className="w-5 h-5" />
-      <span>{label}</span>
-      {badge && <span className="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{badge}</span>}
-    </div>
-  );
-}
+// function NavItem({ icon: Icon, label, badge, active, onClick }: any) {
+//   return (
+//     <div 
+//       onClick={onClick}
+//       className={`flex items-center gap-3 px-4 py-3 rounded-2xl cursor-pointer transition-all text-sm ${active ? 'bg-brand/10 text-brand font-medium' : 'hover:bg-gray-100 text-gray-600'}`}
+//     >
+//       <Icon className="w-5 h-5" />
+//       <span>{label}</span>
+//       {badge && <span className="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{badge}</span>}
+//     </div>
+//   );
+// }
 
 function StatCard({ icon: Icon, color, label, value, trend }: any) {
   const colorMap: any = {
