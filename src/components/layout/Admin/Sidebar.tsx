@@ -1,10 +1,48 @@
 import LogoBlack from "@/components/ui/LogoBlack";
+import { getProfileUrl } from "@/lib/dashboardApi";
+import { useQuery } from "@tanstack/react-query";
 import { FileText, LayoutDashboard, Settings, Users } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
+ interface ProfileImg {
+  profilePicture: string;
+}
+
+ interface ProfileResponse {
+  message: boolean;
+  profileImg: ProfileImg;
+}
 export const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const { data: profileData, isLoading, error } = useQuery<ProfileResponse>({
+    queryKey: ["profile"],
+    queryFn: getProfileUrl,
+    refetchOnWindowFocus: false,
+    retry: 1,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+// Show loading state
+  if (isLoading) {
+    return (
+      <div className="w-9 h-9 rounded-xl bg-gray-300 animate-pulse flex items-center justify-center">
+        {/* Optional: You can put a spinner here */}
+      </div>
+    );
+  }
+
+  // Handle error
+  if (error || !profileData?.profileImg?.profilePicture) {
+    return (
+      <div className="w-9 h-9 rounded-xl bg-gray-500 flex items-center justify-center text-white text-xs font-semibold">
+        ?
+      </div>
+    );
+  }
+
+  const profilePicture = profileData.profileImg.profilePicture;
 
   const navItems = [
     {
@@ -61,8 +99,15 @@ export const Sidebar = () => {
 
       <div className="p-4 border-t border-gray-300">
         <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl">
-          <div className="w-9 h-9 bg-brand rounded-xl flex items-center justify-center text-white font-semibold">
-            AD
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-semibold">
+            <img 
+              src={profilePicture} 
+              alt="Profile" 
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.currentTarget.src = '/default-avatar.png'; 
+              }}
+            />
           </div>
           <div className="flex-1">
             <p className="font-semibold text-sm">Super Administrator</p>

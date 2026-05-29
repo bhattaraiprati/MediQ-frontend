@@ -1,10 +1,62 @@
+import { UploadModal } from '@/components/ui/UploadModel';
+import { dashbaordStats, documentQueue, KnowledgeStats } from '@/lib/dashboardApi';
+import { useQuery } from '@tanstack/react-query';
 import { 
   FileText, Users, BarChart3,  
   Bell, Search, Plus, Upload, CheckCircle, AlertTriangle, 
 } from 'lucide-react';
+import { useState } from 'react';
 
+interface DashboardStats {
+  TotalDocument: number;
+  TotalUsers: number;
+  BlockUser: number;
+}
+
+interface DocumentJob {
+  id: string;
+  state: string;
+  progress: number;
+}
+
+interface DocumentQueueItem {
+  id: string;
+  name: string;
+  status: string;
+  totalChunks: number;
+  job: DocumentJob;
+}
+
+interface DocumentQueueResponse {
+  success: boolean;
+  documents: DocumentQueueItem[];
+}
 
 export default function AdminDashboard() {
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const {data: statsData, isLoading: statsLoading} = useQuery<{ success: boolean; stats: DashboardStats } | undefined>({
+    queryKey: ['dashboardStats'],
+    queryFn: dashbaordStats,
+    refetchOnWindowFocus: false,
+  });
+
+  const stats: DashboardStats = statsData?.stats ?? {
+    TotalDocument: 0,
+    TotalUsers: 0,
+    BlockUser: 0,
+  };
+
+  const {data: documentQueueData, isLoading: documentQueueLoading} = useQuery<DocumentQueueResponse | undefined>({
+    queryKey: ['documentQueue'],
+    queryFn: documentQueue,
+    refetchOnWindowFocus: false,
+  });
+
+  const queueItems = documentQueueData?.documents ?? [];
+  const renderStatus = (state: string) =>
+    state === 'completed' ? 'done' : state === 'processing' ? 'processing' : 'queued';
 
   return (
 
@@ -18,23 +70,10 @@ export default function AdminDashboard() {
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-2xl text-sm font-medium">
-              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-              All systems operational
-            </div>
-
-            <div className="relative p-3 hover:bg-gray-100 rounded-xl cursor-pointer">
-              <Bell className="w-5 h-5 text-gray-600" />
-              <span className="absolute top-2 right-2 w-4 h-4 bg-red-500 text-white text-[10px] flex items-center justify-center rounded-full">3</span>
-            </div>
-
-            <div className="p-3 hover:bg-gray-100 rounded-xl cursor-pointer">
-              <Search className="w-5 h-5 text-gray-600" />
-            </div>
 
             <button className="flex items-center gap-2 bg-brand text-white px-5 py-2.5 rounded-2xl hover:bg-brand-dark transition">
               <Plus className="w-4 h-4" />
-              <span className="font-medium text-sm">Upload Document</span>
+              <span className="font-medium text-sm" onClick={() => setIsModalOpen(true)}>Upload Document</span>
             </button>
           </div>
         </div>
@@ -47,36 +86,37 @@ export default function AdminDashboard() {
               icon={FileText} 
               color="brand" 
               label="Total documents indexed" 
-              value="24" 
-              trend="+3" 
+              value={stats.TotalDocument} 
+              loading={statsLoading}
             />
             <StatCard 
               icon={Users} 
               color="emerald" 
-              label="Active users today" 
-              value="142" 
-              trend="+7" 
+              label="Total users" 
+              value={stats.TotalUsers}  
+              loading={statsLoading}
             />
+            
+            {/* <StatCard 
+              icon={CheckCircle} 
+              color="blue" 
+              label="Total Document" 
+              value="3" 
+              trend="" 
+            /> */}
             <StatCard 
               icon={BarChart3} 
               color="amber" 
-              label="AI queries today" 
-              value="3.8k" 
-              trend="+18%" 
-            />
-            <StatCard 
-              icon={CheckCircle} 
-              color="blue" 
-              label="Answer accuracy rate" 
-              value="98.1%" 
-              trend="97.4%" 
+              label="Block Users" 
+              value={stats.BlockUser} 
+              loading={statsLoading}
             />
           </div>
 
           {/* Two Column Layout */}
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
             {/* Query Volume Chart */}
-            <div className="lg:col-span-3 bg-white border border-gray-200 rounded-3xl p-6">
+            {/* <div className="lg:col-span-3 bg-white border border-gray-200 rounded-3xl p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                   <BarChart3 className="w-5 h-5 text-brand" />
@@ -107,48 +147,49 @@ export default function AdminDashboard() {
                   <span>Doc Uploads</span>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* Processing Queue */}
-            <div className="lg:col-span-2 bg-white border border-gray-200 rounded-3xl p-6">
+            <div className="lg:col-span-3 bg-white border border-gray-200 rounded-3xl p-6">
               <div className="flex items-center gap-3 mb-6">
                 <Upload className="w-5 h-5 text-brand" />
                 <h3 className="font-semibold">AI Processing Queue</h3>
               </div>
-              <QueueItem name="ICU_Formulary_2024.pdf" size="3.2 MB" progress={72} status="processing" />
-              <QueueItem name="DrugInteractions_v3.csv" size="1.1 MB" progress={100} status="done" />
-              <QueueItem name="Cardiology_Protocol_Q2.docx" size="0.8 MB" progress={0} status="queued" />
+              {documentQueueLoading ? (
+                <p className="text-sm text-gray-500">Loading queue...</p>
+              ) : queueItems.length === 0 ? (
+                <p className="text-sm text-gray-500">No documents found in the queue.</p>
+              ) : (
+                queueItems.map((doc) => (
+                  <QueueItem
+                    key={doc.id}
+                    name={doc.name}
+                    size={`${doc.totalChunks} chunks`}
+                    progress={doc.job.progress}
+                    status={renderStatus(doc.job.state)}
+                  />
+                ))
+              )}
             </div>
+            <KnowledgeBase />
           </div>
 
           {/* Recent Activity & Knowledge Base */}
-          <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
-            <RecentActivity />
-            <KnowledgeBase />
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            {/* <RecentActivity /> */}
+            
           </div>
         </div>
-
+          
+        <UploadModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
 
       </>
   );
 }
 
-/* ====================== Reusable Components ====================== */
 
-// function NavItem({ icon: Icon, label, badge, active, onClick }: any) {
-//   return (
-//     <div 
-//       onClick={onClick}
-//       className={`flex items-center gap-3 px-4 py-3 rounded-2xl cursor-pointer transition-all text-sm ${active ? 'bg-brand/10 text-brand font-medium' : 'hover:bg-gray-100 text-gray-600'}`}
-//     >
-//       <Icon className="w-5 h-5" />
-//       <span>{label}</span>
-//       {badge && <span className="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{badge}</span>}
-//     </div>
-//   );
-// }
 
-function StatCard({ icon: Icon, color, label, value, trend }: any) {
+function StatCard({ icon: Icon, color, label, value, loading }: any) {
   const colorMap: any = {
     brand: 'text-brand bg-brand/10',
     emerald: 'text-emerald-600 bg-emerald-100',
@@ -162,10 +203,10 @@ function StatCard({ icon: Icon, color, label, value, trend }: any) {
         <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${colorMap[color]}`}>
           <Icon className="w-6 h-6" />
         </div>
-        <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">+{trend}</span>
+        {/* <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">+{trend}</span> */}
       </div>
       <div className="mt-8">
-        <p className="text-4xl font-semibold tracking-tighter text-gray-900">{value}</p>
+        <p className="text-4xl font-semibold tracking-tighter text-gray-900">{loading ? '...' : value}</p>
         <p className="text-sm text-gray-500 mt-1.5">{label}</p>
       </div>
     </div>
@@ -173,6 +214,7 @@ function StatCard({ icon: Icon, color, label, value, trend }: any) {
 }
 
 function QueueItem({ name, size, progress, status }: any) {
+
   const statusColor = status === 'done' ? 'bg-emerald-500' : status === 'processing' ? 'bg-brand' : 'bg-gray-400';
 
   return (
@@ -199,49 +241,82 @@ function QueueItem({ name, size, progress, status }: any) {
   );
 }
 
-function RecentActivity() {
-  return (
-    <div className="lg:col-span-5 bg-white border border-gray-200 rounded-3xl p-6">
-      <h3 className="font-semibold mb-5 flex items-center gap-3">
-        <AlertTriangle className="w-5 h-5 text-amber-500" /> Recent Activity
-      </h3>
-      <div className="space-y-5">
-        {[
-          "ICU Formulary 2024.pdf uploaded & queued",
-          "New user Dr. Ahmed Al-Farsi approved",
-          "DrugInteractions_v3.csv indexed successfully",
-        ].map((text, i) => (
-          <div key={i} className="flex gap-4">
-            <div className="w-8 h-8 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
-              {i === 0 && <Upload className="w-4 h-4" />}
-              {i === 1 && <Users className="w-4 h-4" />}
-              {i === 2 && <CheckCircle className="w-4 h-4 text-emerald-600" />}
-            </div>
-            <div>
-              <p className="text-sm">{text}</p>
-              <p className="text-xs text-gray-500 mt-1">12 min ago</p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+// function RecentActivity() {
+//   return (
+//     <div className="lg:col-span-3 bg-white border border-gray-200 rounded-3xl p-6">
+//       <h3 className="font-semibold mb-5 flex items-center gap-3">
+//         <AlertTriangle className="w-5 h-5 text-amber-500" /> Recent Activity
+//       </h3>
+//       <div className="space-y-5">
+//         {[
+//           "ICU Formulary 2024.pdf uploaded & queued",
+//           "New user Dr. Ahmed Al-Farsi approved",
+//           "DrugInteractions_v3.csv indexed successfully",
+//         ].map((text, i) => (
+//           <div key={i} className="flex gap-4">
+//             <div className="w-8 h-8 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
+//               {i === 0 && <Upload className="w-4 h-4" />}
+//               {i === 1 && <Users className="w-4 h-4" />}
+//               {i === 2 && <CheckCircle className="w-4 h-4 text-emerald-600" />}
+//             </div>
+//             <div>
+//               <p className="text-sm">{text}</p>
+//               <p className="text-xs text-gray-500 mt-1">12 min ago</p>
+//             </div>
+//           </div>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// }
+
+interface KnowledgeResponse {
+  success: boolean;
+  docsCount: {
+    pdf: number;
+    word: number;
+    csv: number;
+    plain: number;
+  };
+}
+
+interface KnowledgeItem {
+  label: string;
+  color: 'brand' | 'emerald' | 'blue' | 'amber';
+  value: number;
 }
 
 function KnowledgeBase() {
+  const {data: knowledgeData, isLoading: knowledgeLoading} = useQuery<KnowledgeResponse | undefined>({
+    queryKey: ['knowledgeStats'],
+    queryFn: KnowledgeStats,
+    refetchOnWindowFocus: false,
+  });
+
+  const colorMap: Record<KnowledgeItem['color'], string> = {
+    brand: 'bg-brand-500',
+    emerald: 'bg-emerald-500',
+    blue: 'bg-blue-500',
+    amber: 'bg-amber-500',
+  };
+
+  const items: KnowledgeItem[] = knowledgeData
+    ? [
+        { label: 'PDF', color: 'brand', value: knowledgeData.docsCount.pdf },
+        { label: 'Word', color: 'emerald', value: knowledgeData.docsCount.word },
+        { label: 'CSV', color: 'blue', value: knowledgeData.docsCount.csv },
+        { label: 'Plain text', color: 'amber', value: knowledgeData.docsCount.plain },
+      ]
+    : [];
+
   return (
     <div className="lg:col-span-2 bg-white border border-gray-200 rounded-3xl p-6">
       <h3 className="font-semibold mb-5">Knowledge Base</h3>
       <div className="space-y-5 text-sm">
-        {[
-          { label: "PDF files", value: "14", color: "red" },
-          { label: "CSV files", value: "6", color: "emerald" },
-          { label: "DOCX files", value: "4", color: "blue" },
-          { label: "Total vectors", value: "48k", color: "brand" },
-        ].map((item, i) => (
+        {items.map((item, i) => (
           <div key={i} className="flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <div className={`w-2.5 h-2.5 rounded-full bg-${item.color}-500`} />
+              <div className={`w-2.5 h-2.5 rounded-full ${colorMap[item.color]}`} />
               <span className="text-gray-600">{item.label}</span>
             </div>
             <span className="font-mono font-semibold">{item.value}</span>

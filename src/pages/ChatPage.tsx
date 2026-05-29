@@ -6,6 +6,12 @@ import { chatApi } from "@/lib/chatApi";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiMessage, ChatRoom, SendMessageResponse } from "@/types";
 
+interface Messag {
+  id: string;
+  isUser: boolean;
+  content: string;
+  time: string;
+}
 interface UIMessage {
   id: string;
   isUser: boolean;
@@ -50,14 +56,14 @@ export default function ChatPage() {
 
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  const suggestedQuestions = [
-    "Amoxicillin rash: when to worry?",
-    "Amoxicillin-clavulanate vs amoxicillin alone",
-    "Probiotics for amoxicillin-induced diarrhea",
-    "Amoxicillin & oral contraceptives interaction",
-  ];
+  // const suggestedQuestions = [
+  //   "Amoxicillin rash: when to worry?",
+  //   "Amoxicillin-clavulanate vs amoxicillin alone",
+  //   "Probiotics for amoxicillin-induced diarrhea",
+  //   "Amoxicillin & oral contraceptives interaction",
+  // ];
 
-  // ── 1. Load sidebar chat list ───────────────────────────────────────────────
+  // ── 1. Load sidebar chat list 
   const { data: chatsData, isLoading: chatsLoading } = useQuery({
     queryKey: ["chats"],
     queryFn: () => chatApi.getAllChats(),
@@ -65,7 +71,7 @@ export default function ChatPage() {
   });
   const chatRooms: ChatRoom[] = chatsData?.chats ?? [];
 
-  // ── 2. Load messages when user clicks a chat room ──────────────────────────
+  // ── 2. Load messages when user clicks a chat room 
   const { mutate: loadChat, isPending: loadingChat } = useMutation({
     mutationFn: (chat_id: string) => chatApi.getChatMessages(chat_id),
     onSuccess: (data) => {
@@ -77,7 +83,7 @@ export default function ChatPage() {
     },
   });
 
-  // ── 3. Send message ────────────────────────────────────────────────────────
+  // ── 3. Send message 
   const sendMutation = useMutation<SendMessageResponse, Error, string>({
     mutationFn: (query) =>
       chatApi.sendMessage(query, activeChatId ?? undefined),
@@ -113,7 +119,7 @@ export default function ChatPage() {
     },
   });
 
-  // ── 4. Delete chat ─────────────────────────────────────────────────────────
+  // ── 4. Delete chat 
   const deleteMutation = useMutation({
     mutationFn: (chat_id: string) => chatApi.deleteChat(chat_id),
     onSuccess: (_, chat_id) => {
@@ -122,7 +128,7 @@ export default function ChatPage() {
     },
   });
 
-  // ── 5. New chat (reset state) ──────────────────────────────────────────────
+  // ── 5. New chat (reset state) 
   const handleNewChat = useCallback(() => {
     setActiveChatId(null);
     setMessages([]);
@@ -130,7 +136,7 @@ export default function ChatPage() {
     setInputValue("");
   }, []);
 
-  // ── 6. Send handler ────────────────────────────────────────────────────────
+  // ── 6. Send handler 
   const handleSend = () => {
     const trimmed = inputValue.trim();
     if (!trimmed || sendMutation.isPending) return;
@@ -153,12 +159,12 @@ export default function ChatPage() {
     }
   };
 
-  // ── 7. Auto-scroll ─────────────────────────────────────────────────────────
+  // ── 7. Auto-scroll 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, sendMutation.isPending]);
 
-  // ── Sidebar chat grouping (Today / Earlier) ────────────────────────────────
+  // ── Sidebar chat grouping (Today / Earlier) 
   const todayStr = new Date().toDateString();
   const todayChats = chatRooms.filter(
     (c) => new Date(c.created_at).toDateString() === todayStr,
@@ -168,7 +174,7 @@ export default function ChatPage() {
   );
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50 font-sans">
-      {/* ── Sidebar ────────────────────────────────────────────────────────── */}
+
       <div
         className={`${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -254,7 +260,7 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {/* ── Mobile sidebar overlay ────────────────────────────────────────── */}
+      {/* ── Mobile sidebar overlay  */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/30 lg:hidden"
@@ -262,7 +268,7 @@ export default function ChatPage() {
         />
       )}
 
-      {/* ── Main area ─────────────────────────────────────────────────────── */}
+      {/* ── Main area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Topbar */}
         <div className="h-14 border-b border-gray-300 bg-white px-4 lg:px-6 flex items-center justify-between shrink-0">
@@ -364,7 +370,7 @@ export default function ChatPage() {
             )}
 
             {/* Suggested follow-ups */}
-            {!sendMutation.isPending &&
+            {/* {!sendMutation.isPending &&
               messages.length > 0 &&
               !messages[messages.length - 1].isUser && (
                 <div>
@@ -383,7 +389,7 @@ export default function ChatPage() {
                     ))}
                   </div>
                 </div>
-              )}
+              )} */}
 
             <div ref={bottomRef} />
           </div>
