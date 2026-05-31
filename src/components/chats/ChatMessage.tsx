@@ -1,9 +1,9 @@
-import { ReactNode } from 'react';
 import Markdown from 'react-markdown';
+import { ReactNode } from 'react';
 
 interface ChatMessageProps {
   isUser: boolean;
-  children: ReactNode;
+  children: ReactNode | string;
   time?: string;
 }
 
@@ -19,8 +19,6 @@ export default function ChatMessage({ isUser, children, time }: ChatMessageProps
   }
 
   return (
-    <>
-   
     <div className="flex gap-4">
       <div className="w-8 h-8 bg-brand rounded-xl flex items-center justify-center flex-shrink-0 mt-1">
         <svg viewBox="0 0 24 24" className="w-4 h-4 text-white" fill="currentColor">
@@ -35,11 +33,42 @@ export default function ChatMessage({ isUser, children, time }: ChatMessageProps
           </span>
         </div>
         <div className="bg-white border border-gray-300 rounded-3xl rounded-bl-md p-5 text-[15px] leading-relaxed text-gray-800">
-           {children}
+          {typeof children === 'string' ? (
+            <Markdown
+              components={{
+                h1: ({ children }) => (
+                  <h1 className="text-lg font-bold text-gray-900 mt-4 mb-2 first:mt-0">
+                    {children}
+                  </h1>
+                ),
+                h2: ({ children }) => (
+                  <h2 className="text-base font-bold text-gray-800 mt-3 mb-1">
+                    {children}
+                  </h2>
+                ),
+                ul: ({ children }) => (
+                  <ul className="list-disc list-inside space-y-1 text-gray-700 ml-1">
+                    {children}
+                  </ul>
+                ),
+                li: ({ children }) => (
+                  <li className="text-[15px]">{children}</li>
+                ),
+                p: ({ children }) => (
+                  <p className="text-gray-700 mb-1">{children}</p>
+                ),
+                em: ({ children }) => (
+                  <em className="text-amber-700 not-italic text-sm">{children}</em>
+                ),
+              }}
+            >
+              {children}
+            </Markdown>
+          ) : (
+            children
+          )}
         </div>
       </div>
     </div>
-
-    </>
   );
 }

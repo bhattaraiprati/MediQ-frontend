@@ -12,6 +12,7 @@ interface Document {
   name: string;
   file_type: string;
   createdAt: string;
+  cloudinary_url: string;
   status: 'completed' | 'processing' | 'queued' | 'error';
   totalChunks: number;
 }
@@ -105,6 +106,11 @@ export const DocumentPage = () => {
     if (fileType.includes('word') || fileType.includes('document')) return 'DOCX';
     return fileType.split('/').pop()?.toUpperCase() || 'FILE';
   };
+
+  const handleCloudinaryUrl = (url:string)=>{
+    window.open(url, "_blank", "noreferrer");
+
+  }
 
   return (
     <>
@@ -214,15 +220,17 @@ export const DocumentPage = () => {
             {/* Documents Table */}
             <div className="bg-white border border-gray-200 rounded-3xl overflow-hidden">
               <div className="grid grid-cols-12 bg-gray-50 border-b border-gray-300 text-xs font-semibold text-gray-500 px-8 py-4">
-                <div className="col-span-5">Document</div>
-                <div className="col-span-1">Type</div>
-                <div className="col-span-2">Uploaded</div>
-                <div className="col-span-1">Status</div>
+                <div className="col-span-4">Document</div>
+                <div className="col-span-1 grid grid-flow-col justify-items-center">Type</div>
+                <div className="col-span-2 grid grid-flow-col justify-items-center">Uploaded</div>
+                <div className="col-span-2 grid grid-flow-col justify-items-center">Status</div>
+                <div className="col-span-2 grid grid-flow-col justify-items-center">Action</div>
+
               </div>
 
               {filteredDocs.map((doc) => (
                 <div key={doc.id} className="grid grid-cols-12 px-8 py-5 border-b border-gray-300 last:border-none hover:bg-gray-50 transition-all items-center">
-                  <div className="col-span-5 flex items-center gap-4">
+                  <div className="col-span-4 flex items-center gap-4">
                     <div className="w-10 h-10 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center">
                       <FileText className="w-5 h-5" />
                     </div>
@@ -233,17 +241,28 @@ export const DocumentPage = () => {
                       </p>
                     </div>
                   </div>
-                  <div className="col-span-1 font-medium">{getFileTypeLabel(doc.file_type)}</div>
-                  <div className="col-span-2 text-gray-600">
+                  <div className="col-span-1 font-medium grid grid-flow-col justify-items-center">{getFileTypeLabel(doc.file_type)}</div>
+                  <div className="col-span-2 text-gray-600 grid grid-flow-col justify-items-center">
                     {new Date(doc.createdAt).toLocaleString()}
                   </div>
-                  <div className="col-span-1">
+                  <div className="col-span-2 grid grid-flow-col justify-items-center">
                     <span className={`inline-flex items-center gap-1.5 px-4 py-1 text-xs font-medium rounded-full border ${getStatusBadge(doc.status)}`}>
-                      <div className={`w-2 h-2 rounded-full ${doc.status === 'processing' ? 'animate-pulse bg-brand' : ''}`} />
+                      <div className={`w-2 h-2 rounded-full ${doc.status === 'processing' ? 'animate-pulse bg-brand' : 'bg-brand'}`} />
                       {doc.status === 'completed' ? 'Completed' :
                         doc.status === 'processing' ? 'Processing' : doc.status}
                     </span>
                   </div>
+                  <div className="col-span-2 grid grid-flow-col justify-items-center text-gray-600">
+                    <button 
+                    onClick={ () => handleCloudinaryUrl(doc.cloudinary_url)}
+                    className='px-4 py-1 border border-brand rounded-lg bg-brand text-white '
+                    >View</button>
+                     <button 
+                    onClick={ () => handleCloudinaryUrl(doc.cloudinary_url)}
+                    className='px-4 py-1 border border-red-500 rounded-lg bg-red-500 text-white '
+                    >Delete</button>
+                  </div>
+                  
                 </div>
               ))}
 

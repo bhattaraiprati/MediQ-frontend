@@ -1,5 +1,5 @@
-import { getUserDetails } from "@/lib/dashboardApi";
-import { useQuery } from "@tanstack/react-query";
+import { getUserDetails, updateUserStatus } from "@/lib/dashboardApi";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Search, UserCheck } from "lucide-react";
 import { useState } from "react";
 
@@ -16,8 +16,11 @@ interface ApiResponse {
   users: UserDetails[];
 }
 
-export const UserManagementPage = () => {
+export const UserManagePage = () => {
   const [searchTerm, setSearchTerm] = useState("");
+
+  const queryClient = useQueryClient();
+
 
   const { data: userData, isLoading, error } = useQuery<ApiResponse>({
     queryKey: ["userDetails"],
@@ -25,6 +28,30 @@ export const UserManagementPage = () => {
     refetchOnWindowFocus: false,
     retry: 1,
   });
+
+  const statusChangeMutation = useMutation({
+    mutationFn: updateUserStatus,
+    onSuccess: () =>{
+      queryClient.invalidateQueries({ queryKey: ['userDetails'] });
+    },
+    onError: (error:any) =>{
+      console.error(error);
+      alert('Update failed: ' + (error.response?.data?.message || error.message));
+    }
+  })
+
+  const handleToggleStatus = (id: string, currentStatus: string) => {
+    const newStatus = currentStatus === "active" ? "inactive" : "active";
+
+    if (!confirm(`Are you sure you want to ${newStatus} this user?`)) return;
+
+    const payload = { 
+        id, 
+        status: newStatus 
+    };
+
+    statusChangeMutation.mutate(payload);
+};
 
   // Filter users based on search
   const filteredUsers = userData?.users?.filter((user) =>
@@ -56,8 +83,7 @@ export const UserManagementPage = () => {
       <div className="flex-1 flex flex-col">
         {/* Topbar */}
         <div className="h-16 bg-white border-b border-gray-300 px-8 flex items-center justify-between">
-          <h1 className="text-xl font-semibold text-gray-900"></h1>
-          
+          <h1 className="text-xl font-semibold text-gray-900">User Management</h1>
           <div className="flex items-center gap-3">
             {/* You can add "Add User" button here later */}
           </div>
@@ -132,7 +158,7 @@ export const UserManagementPage = () => {
                   <div className="col-span-2 flex gap-2">
                     {/* Toggle Active/Inactive Button */}
                     <button
-                      // onClick={() => handleToggleStatus(user.id, user.status)}
+                      onClick={() => handleToggleStatus(user.id, user.status)}
                       className={`px-4 py-2 text-xs font-medium rounded-xl transition ${
                         user.status === "active"
                           ? "text-orange-600 hover:bg-orange-50"

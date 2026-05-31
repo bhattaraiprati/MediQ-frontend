@@ -34,16 +34,18 @@ const apiMsgToUI = (m: ApiMessage): UIMessage => ({
   time: toDisplayTime(m.created_at),
 });
 
-const renderContent = (text: string) =>
-  text.split("\n").map((line, i) => (
-    <p
-      key={i}
-      className={line === "" ? "mt-2" : ""}
-      dangerouslySetInnerHTML={{
-        __html: line.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>"),
-      }}
-    />
-  ));
+// const renderContent = (text: string) =>
+//   text.split("\n").map((line, i) => (
+//     <p
+//       key={i}
+//       className={line === "" ? "mt-2" : ""}
+//       dangerouslySetInnerHTML={{
+//         __html: line.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>"),
+//       }}
+//     />
+//   ));
+
+const renderContent = (content: string) => content;
 
 export default function ChatPage() {
   const queryClient = useQueryClient();

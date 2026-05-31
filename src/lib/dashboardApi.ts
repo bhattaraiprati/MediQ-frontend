@@ -48,4 +48,18 @@ export const getUserDetails = async ()=>{
         },
     });
     return response.data;
-}   
+}  
+
+export const updateUserStatus = async (payload: { id: string; status: string }) => {
+    const response = await axios.post(
+        `${BASE_URL}/auth/update/status`, 
+        payload,                    // ← Send directly, NOT {data: payload}
+        {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("mediq_token") || ""}`
+            },
+        }
+    );
+    return response.data;
+};
