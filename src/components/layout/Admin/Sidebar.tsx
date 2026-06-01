@@ -1,7 +1,9 @@
 import LogoBlack from "@/components/ui/LogoBlack";
+import PopupModel from "@/components/ui/PopupModel";
 import { getProfileUrl } from "@/lib/dashboardApi";
 import { useQuery } from "@tanstack/react-query";
-import { FileText, LayoutDashboard, Settings, Users } from "lucide-react";
+import { FileText, LayoutDashboard, LogOut, Settings, Users } from "lucide-react";
+import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
  interface ProfileImg {
@@ -15,6 +17,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 export const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const { data: profileData, isLoading, error } = useQuery<ProfileResponse>({
     queryKey: ["profile"],
@@ -58,13 +61,22 @@ export const Sidebar = () => {
         { icon: Users, label: "Users", path: "/admin/users" },
       ],
     },
-    {
-      group: "System",
-      items: [
-        { icon: Settings, label: "Settings", path: "/admin/settings" },
-      ],
-    },
   ];
+
+ const handleLogout = async () => {
+  // Your logout logic here
+  try {
+    // await logoutApi();
+    console.log("User logged out");
+    localStorage.removeItem("mediq_token")
+    localStorage.removeItem( "mediq_user")
+
+    // Redirect or clear session
+    window.location.href = "/";
+  } catch (error) {
+    console.error("Logout failed", error);
+  }
+};
 
   return (
     <div className="w-72 bg-white border-r border-gray-200 flex flex-col h-screen">
@@ -113,9 +125,21 @@ export const Sidebar = () => {
             <p className="font-semibold text-sm">Super Administrator</p>
             <p className="text-xs text-gray-500">Admin Panel</p>
           </div>
-          <Settings className="w-5 h-5 text-gray-400" />
+          <LogOut 
+            onClick={() => setShowLogoutModal(true)} 
+            className="w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600" 
+          />
         </div>
       </div>
+      <PopupModel
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        title="Logout"
+        content="Are you sure you want to log out?"
+        buttonContent="Logout"
+        buttonVariant="danger"
+        onConfirm={handleLogout}
+      />
     </div>
   );
 };

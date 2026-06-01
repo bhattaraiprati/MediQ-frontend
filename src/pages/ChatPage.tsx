@@ -58,13 +58,6 @@ export default function ChatPage() {
 
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  // const suggestedQuestions = [
-  //   "Amoxicillin rash: when to worry?",
-  //   "Amoxicillin-clavulanate vs amoxicillin alone",
-  //   "Probiotics for amoxicillin-induced diarrhea",
-  //   "Amoxicillin & oral contraceptives interaction",
-  // ];
-
   // ── 1. Load sidebar chat list 
   const { data: chatsData, isLoading: chatsLoading } = useQuery({
     queryKey: ["chats"],
@@ -206,6 +199,8 @@ export default function ChatPage() {
               <div className="uppercase text-xs font-semibold text-gray-400 px-3 mb-2">
                 Today
               </div>
+
+
               <div className="space-y-1">
                 {todayChats.map((chat) => (
                   <ChatRoomItem
