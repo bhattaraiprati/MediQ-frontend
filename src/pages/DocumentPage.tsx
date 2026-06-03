@@ -80,7 +80,7 @@ export const DocumentPage = () => {
     const matchesFilter =
       activeFilter === 'All' ||
       (activeFilter === 'PDF' && doc.file_type.includes('pdf')) ||
-      (activeFilter === 'CSV' && doc.file_type.includes('csv')) ||
+      (activeFilter === 'TXT' && doc.file_type.includes('plain')) ||
       (activeFilter === 'DOCX' && (doc.file_type.includes('word') || doc.file_type.includes('document'))) ||
       (activeFilter === 'Errors' && doc.status === 'error');
 
@@ -102,7 +102,7 @@ export const DocumentPage = () => {
 
   const getFileTypeLabel = (fileType: string) => {
     if (fileType.includes('pdf')) return 'PDF';
-    if (fileType.includes('csv')) return 'CSV';
+    if (fileType.includes('plain')) return 'TXT';
     if (fileType.includes('word') || fileType.includes('document')) return 'DOCX';
     return fileType.split('/').pop()?.toUpperCase() || 'FILE';
   };
@@ -203,7 +203,7 @@ export const DocumentPage = () => {
                 />
               </div>
               <div className="flex gap-2 flex-wrap">
-                {['All', 'PDF', 'CSV', 'DOCX', 'Errors'].map((filter) => (
+                {['All', 'PDF', 'TXT', 'DOCX', 'Errors'].map((filter) => (
                   <button
                     key={filter}
                     onClick={() => setActiveFilter(filter)}
@@ -257,10 +257,10 @@ export const DocumentPage = () => {
                     onClick={ () => handleCloudinaryUrl(doc.cloudinary_url)}
                     className='px-4 py-1 border border-brand rounded-lg bg-brand text-white '
                     >View</button>
-                     <button 
+                     {/* <button 
                     onClick={ () => handleCloudinaryUrl(doc.cloudinary_url)}
                     className='px-4 py-1 border border-red-500 rounded-lg bg-red-500 text-white '
-                    >Delete</button>
+                    >Delete</button> */}
                   </div>
                   
                 </div>

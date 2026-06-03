@@ -18,6 +18,11 @@ interface UIMessage {
   content: string;
   time: string;
 }
+interface userDetails {
+  id: string;
+  email: string;
+  role: string;
+}
 
 const toDisplayTime = (iso?: string) =>
   iso
@@ -34,17 +39,6 @@ const apiMsgToUI = (m: ApiMessage): UIMessage => ({
   time: toDisplayTime(m.created_at),
 });
 
-// const renderContent = (text: string) =>
-//   text.split("\n").map((line, i) => (
-//     <p
-//       key={i}
-//       className={line === "" ? "mt-2" : ""}
-//       dangerouslySetInnerHTML={{
-//         __html: line.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>"),
-//       }}
-//     />
-//   ));
-
 const renderContent = (content: string) => content;
 
 export default function ChatPage() {
@@ -57,6 +51,12 @@ export default function ChatPage() {
   const [activeTitle, setActiveTitle] = useState<string>("New consultation");
 
   const bottomRef = useRef<HTMLDivElement>(null);
+
+
+  const usersString = localStorage.getItem("mediq_user");
+
+  const getEmail : userDetails | null = usersString ? JSON.parse(usersString) : null;
+
 
   // ── 1. Load sidebar chat list 
   const { data: chatsData, isLoading: chatsLoading } = useQuery({
@@ -242,19 +242,31 @@ export default function ChatPage() {
           )}
         </div>
 
-        {/* User footer */}
-        <div className="border-t border-gray-200 p-4">
-          <div className="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-100 cursor-pointer">
-            <div className="w-9 h-9 bg-brand rounded-full flex items-center justify-center text-white font-semibold text-sm">
-              DR
-            </div>
-            <div className="flex-1">
-              <p className="font-medium text-sm">Dr. Reena Shah</p>
-              <p className="text-xs text-gray-500">Clinical Pharmacist</p>
-            </div>
-            <Settings className="size-5 text-gray-400 hover:text-gray-600" />
+       {/* User footer */}
+      <div className="border-t border-gray-200 p-4">
+        <div className="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-100 cursor-pointer group">
+          {/* Avatar */}
+          <div className="w-9 h-9 bg-brand rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+            DR
           </div>
+
+          {/* User Info */}
+          <div className="flex-1 min-w-0"> {/* min-w-0 is important for truncation */}
+            <p 
+              className="font-medium text-sm text-gray-900 truncate"
+              title={getEmail?.email}   // Tooltip on hover
+            >
+              {getEmail?.email}
+            </p>
+            <p className="text-xs text-gray-500">Clinical Pharmacist</p>
+          </div>
+
+          {/* Settings Icon */}
+          <Settings
+            className="size-5 text-gray-400 hover:text-gray-600 flex-shrink-0 transition-colors" 
+          />
         </div>
+      </div>
       </div>
 
       {/* ── Mobile sidebar overlay  */}
@@ -274,7 +286,8 @@ export default function ChatPage() {
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="lg:hidden p-2 hover:bg-gray-100 rounded-xl"
             >
-              ☰
+
+             ☰
             </button>
             <div className="flex items-center gap-3">
               <div className="w-7 h-7 bg-brand rounded-lg flex items-center justify-center shrink-0">

@@ -1,8 +1,9 @@
 import LogoBlack from "@/components/ui/LogoBlack";
 import PopupModel from "@/components/ui/PopupModel";
 import { getProfileUrl } from "@/lib/dashboardApi";
+import { useAuthStore } from "@/store/authStore";
 import { useQuery } from "@tanstack/react-query";
-import { FileText, LayoutDashboard, LogOut, Settings, Users } from "lucide-react";
+import { FileText, LayoutDashboard, Lock, LogOut, RotateCcwKey, Settings, Users } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -14,12 +15,21 @@ import { useNavigate, useLocation } from "react-router-dom";
   message: boolean;
   profileImg: ProfileImg;
 }
+
+interface User {
+  id: string;
+  email: string;
+  role: string;
+}
+
 export const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const { data: profileData, isLoading, error } = useQuery<ProfileResponse>({
+  const userString = localStorage.getItem("mediq_user");
+  const getEmail: User | null = userString ? JSON.parse(userString) : null;
+  const { data: profileData, isLoading} = useQuery<ProfileResponse>({
     queryKey: ["profile"],
     queryFn: getProfileUrl,
     refetchOnWindowFocus: false,
@@ -36,16 +46,8 @@ export const Sidebar = () => {
     );
   }
 
-  // Handle error
-  if (error || !profileData?.profileImg?.profilePicture) {
-    return (
-      <div className="w-9 h-9 rounded-xl bg-gray-500 flex items-center justify-center text-white text-xs font-semibold">
-        ?
-      </div>
-    );
-  }
 
-  const profilePicture = profileData.profileImg.profilePicture;
+  const profilePicture = profileData?.profileImg?.profilePicture;
 
   const navItems = [
     {
@@ -57,7 +59,7 @@ export const Sidebar = () => {
     {
       group: "Management",
       items: [
-        { icon: FileText, label: "Documents", path: "/admin/documents", badge: "2" },
+        { icon: FileText, label: "Documents", path: "/admin/documents" },
         { icon: Users, label: "Users", path: "/admin/users" },
       ],
     },
@@ -95,12 +97,11 @@ export const Sidebar = () => {
             <div className="uppercase text-xs font-semibold text-gray-500 px-4 mb-3">
               {group}
             </div>
-            {items.map(({ icon, label, path, badge }) => (
+            {items.map(({ icon, label, path}) => (
               <NavItem
                 key={path}
                 icon={icon}
                 label={label}
-                badge={badge}
                 active={location.pathname === path}
                 onClick={() => navigate(path)}
               />
@@ -109,8 +110,14 @@ export const Sidebar = () => {
         ))}
       </div>
 
-      <div className="p-4 border-t border-gray-300">
-        <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl">
+      <div className="px-4 py-2 border-t border-gray-300">
+        <div onClick={() => navigate("admin/change-password")} className="cursor-pointer hover:bg-gray-100 rounded-2xl">
+          <div className="flex items-center gap-5 p-3 ml-12 bg-gray-50 rounded-2xl cursor-pointer hover:bg-gray-100">
+            <p className="font-semibold text-sm">Change Password</p>
+            <RotateCcwKey className="w-6 h-6 ml-auto text-gray-400 cursor-pointer hover:text-gray-600" />
+          </div>
+        </div>
+        <div className="flex items-center border-t border-gray-300 gap-3 p-3 bg-gray-50 rounded-2xl">
           <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-semibold">
             <img 
               src={profilePicture} 
@@ -122,7 +129,7 @@ export const Sidebar = () => {
             />
           </div>
           <div className="flex-1">
-            <p className="font-semibold text-sm">Super Administrator</p>
+            <p className="font-semibold text-sm">{getEmail?.email || 'User'}</p>
             <p className="text-xs text-gray-500">Admin Panel</p>
           </div>
           <LogOut 
@@ -144,7 +151,7 @@ export const Sidebar = () => {
   );
 };
 
-function NavItem({ icon: Icon, label, badge, active, onClick }: {
+function NavItem({ icon: Icon, label, active, onClick }: {
   icon: React.ElementType;
   label: string;
   badge?: string;
@@ -160,11 +167,7 @@ function NavItem({ icon: Icon, label, badge, active, onClick }: {
     >
       <Icon className="w-5 h-5" />
       <span>{label}</span>
-      {badge && (
-        <span className="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-          {badge}
-        </span>
-      )}
+      
     </div>
   );
 }

@@ -58,6 +58,11 @@ export default function AdminDashboard() {
   const renderStatus = (state: string) =>
     state === 'completed' ? 'done' : state === 'processing' ? 'processing' : 'queued';
 
+  const today = new Date();
+
+  const dayName = today.toLocaleDateString('en-us', {weekday: 'long'})
+  const numericDate = today.toLocaleDateString('en-us', {year: 'numeric',  day: '2-digit', month: '2-digit'})
+
   return (
 
     <>
@@ -66,7 +71,7 @@ export default function AdminDashboard() {
         <div className="h-16 bg-white border-b border-gray-300 flex items-center px-8 justify-between">
           <div>
             <h1 className="text-xl font-semibold text-gray-900">Dashboard Overview</h1>
-            <p className="text-sm text-gray-500">Tuesday, May 12, 2026</p>
+            <p className="text-sm text-gray-500">{dayName}, {numericDate}</p>
           </div>
 
           <div className="flex items-center gap-4">
@@ -96,14 +101,6 @@ export default function AdminDashboard() {
               value={stats.TotalUsers}  
               loading={statsLoading}
             />
-            
-            {/* <StatCard 
-              icon={CheckCircle} 
-              color="blue" 
-              label="Total Document" 
-              value="3" 
-              trend="" 
-            /> */}
             <StatCard 
               icon={BarChart3} 
               color="amber" 
@@ -115,39 +112,6 @@ export default function AdminDashboard() {
 
           {/* Two Column Layout */}
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-            {/* Query Volume Chart */}
-            {/* <div className="lg:col-span-3 bg-white border border-gray-200 rounded-3xl p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <BarChart3 className="w-5 h-5 text-brand" />
-                  <div>
-                    <h3 className="font-semibold">Query Volume — Last 7 days</h3>
-                    <p className="text-sm text-gray-500">Queries vs Documents</p>
-                  </div>
-                </div>
-              </div>
-              <div className="h-64 flex items-end gap-3">
-                {['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((day, i) => (
-                  <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                    <div className="w-full flex flex-col-reverse gap-1 h-52">
-                      <div className="bg-brand/90 rounded-t w-full" style={{height: `${40 + i * 12}%`}}></div>
-                      <div className="bg-blue-200 rounded-t w-full" style={{height: `${20 + i * 8}%`}}></div>
-                    </div>
-                    <p className="text-xs text-gray-500 mt-2">{day}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="flex gap-6 mt-4 text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-brand rounded"></div>
-                  <span>AI Queries</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-blue-200 rounded"></div>
-                  <span>Doc Uploads</span>
-                </div>
-              </div>
-            </div> */}
 
             {/* Processing Queue */}
             <div className="lg:col-span-3 bg-white border border-gray-200 rounded-3xl p-6">
@@ -294,7 +258,7 @@ function KnowledgeBase() {
   });
 
   const colorMap: Record<KnowledgeItem['color'], string> = {
-    brand: 'bg-brand-500',
+    brand: 'bg-brand',
     emerald: 'bg-emerald-500',
     blue: 'bg-blue-500',
     amber: 'bg-amber-500',
@@ -303,8 +267,7 @@ function KnowledgeBase() {
   const items: KnowledgeItem[] = knowledgeData
     ? [
         { label: 'PDF', color: 'brand', value: knowledgeData.docsCount.pdf },
-        { label: 'Word', color: 'emerald', value: knowledgeData.docsCount.word },
-        { label: 'CSV', color: 'blue', value: knowledgeData.docsCount.csv },
+        { label: 'Word', color: 'blue', value: knowledgeData.docsCount.word },
         { label: 'Plain text', color: 'amber', value: knowledgeData.docsCount.plain },
       ]
     : [];

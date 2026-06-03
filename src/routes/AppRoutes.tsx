@@ -7,6 +7,7 @@ import AdminDashboard from "@/pages/AdminDashboard"
 import AdminLayout from "@/components/layout/Admin/AdminLayout"
 import { DocumentPage } from "@/pages/DocumentPage"
 import { UserManagePage } from "@/pages/UserManagePage"
+import ChangePasswordPage from "@/pages/ChangePasswordPage"
 
 const AppRoutes = () => {
 
@@ -23,9 +24,8 @@ const AppRoutes = () => {
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/documents" element={<DocumentPage />} />
           <Route path="/admin/users" element={<UserManagePage/>} />
-          {/* <Route path="/admin/settings" element={<SettingsPage />} /> */}
+          <Route path="/admin/change-password" element={<ChangePasswordPage />} />
         </Route>
-        {/* <Route path="/admin" element={<AdminDashboard />} /> */}
       </Route>
 
       {/* <Route

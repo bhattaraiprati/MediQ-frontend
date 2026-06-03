@@ -1,4 +1,4 @@
-import { DecodedToken, LoginCredentials, RegisterCredentials, User } from "@/types"
+import { changePassword, DecodedToken, LoginCredentials, RegisterCredentials, User } from "@/types"
 import { jwtDecode } from "jwt-decode"
 
 export const BASE_URL = 'http://localhost:5000/api'
@@ -46,7 +46,7 @@ const request = async <T>(
   if (!response.ok) {
     if (response.status === 401) {
       authApi.logout()
-      window.location.href = '/login'
+      // window.location.href = '/'
     }
 
     throw new Error(data.message || 'Something went wrong')
@@ -95,6 +95,15 @@ export const authApi = {
       token: data.token,
       user,
     }
+  },
+
+  async changePassword (credentials: changePassword){
+    const data = await request<{message: string}>('/auth/change-password',{
+      method: "POST",
+      body: JSON.stringify(credentials),
+    })
+
+    return data.message;
   },
 
   logout() {

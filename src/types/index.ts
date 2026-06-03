@@ -15,6 +15,10 @@ export interface RegisterCredentials {
   email: string
   password: string
 }
+export interface changePassword {
+  oldPassword : string;
+  newPassword: string;
+}
 
 export interface DecodedToken {
   sub?: string;
