@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import ChatMessage from "@/components/chats/ChatMessage";
 import LogoBlack from "@/components/ui/LogoBlack";
-import { MessageSquare, Settings, Loader2, Plus, Trash2 } from "lucide-react";
+import { MessageSquare, Loader2, Plus, Trash2, RotateCcwKey, LogOut } from "lucide-react";
 import { chatApi } from "@/lib/chatApi";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiMessage, ChatRoom, SendMessageResponse } from "@/types";
+import {  useNavigate } from "react-router-dom";
+import PopupModel from "@/components/ui/PopupModel";
 
 interface Messag {
   id: string;
@@ -43,12 +45,15 @@ const renderContent = (content: string) => content;
 
 export default function ChatPage() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [messages, setMessages] = useState<UIMessage[]>([]);
   const [activeTitle, setActiveTitle] = useState<string>("New consultation");
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
 
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -154,6 +159,21 @@ export default function ChatPage() {
     }
   };
 
+  const handleLogout = async () => {
+  // Your logout logic here
+  try {
+    // await logoutApi();
+    console.log("User logged out");
+    localStorage.removeItem("mediq_token")
+    localStorage.removeItem( "mediq_user")
+
+    // Redirect or clear session
+    window.location.href = "/";
+  } catch (error) {
+    console.error("Logout failed", error);
+  }
+};
+
   // ── 7. Auto-scroll 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -244,10 +264,16 @@ export default function ChatPage() {
 
        {/* User footer */}
       <div className="border-t border-gray-200 p-4">
+        <div onClick={() => navigate("/change-password")} className="cursor-pointer hover:bg-gray-100 rounded-2xl">
+          <div className="flex items-center gap-5 p-3 ml-12 bg-gray-50 rounded-2xl cursor-pointer hover:bg-gray-100">
+            <p className="font-semibold text-sm">Change Password</p>
+            <RotateCcwKey className="w-6 h-6 ml-auto text-gray-400 cursor-pointer hover:text-gray-600" />
+          </div>
+        </div>
         <div className="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-100 cursor-pointer group">
           {/* Avatar */}
           <div className="w-9 h-9 bg-brand rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
-            DR
+            CP
           </div>
 
           {/* User Info */}
@@ -262,8 +288,12 @@ export default function ChatPage() {
           </div>
 
           {/* Settings Icon */}
-          <Settings
+          {/* <Settings
             className="size-5 text-gray-400 hover:text-gray-600 flex-shrink-0 transition-colors" 
+          /> */}
+          <LogOut 
+            onClick={() => setShowLogoutModal(true)} 
+            className="w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600" 
           />
         </div>
       </div>
@@ -379,27 +409,6 @@ export default function ChatPage() {
               </div>
             )}
 
-            {/* Suggested follow-ups */}
-            {/* {!sendMutation.isPending &&
-              messages.length > 0 &&
-              !messages[messages.length - 1].isUser && (
-                <div>
-                  <p className="uppercase text-xs font-semibold text-gray-500 mb-3">
-                    Suggested follow-ups
-                  </p>
-                  <div className="flex flex-wrap gap-3">
-                    {suggestedQuestions.map((q, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setInputValue(q)}
-                        className="px-5 py-3 bg-white border border-gray-200 hover:border-brand rounded-3xl text-sm text-gray-700 hover:text-brand transition-all"
-                      >
-                        {q}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )} */}
 
             <div ref={bottomRef} />
           </div>
@@ -444,6 +453,15 @@ export default function ChatPage() {
           </div>
         </div>
       </div>
+      <PopupModel
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        title="Logout"
+        content="Are you sure you want to log out?"
+        buttonContent="Logout"
+        buttonVariant="danger"
+        onConfirm={handleLogout}
+      />
     </div>
   );
 }

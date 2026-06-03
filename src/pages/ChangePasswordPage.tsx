@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Save } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
 import { authApi } from '@/lib/api';
 
 const ChangePasswordPage = () => {

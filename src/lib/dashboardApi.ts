@@ -53,7 +53,7 @@ export const getUserDetails = async ()=>{
 export const updateUserStatus = async (payload: { id: string; status: string }) => {
     const response = await axios.post(
         `${BASE_URL}/auth/update/status`, 
-        payload,                    // ← Send directly, NOT {data: payload}
+        payload,                  
         {
             headers: {
                 "Content-Type": "application/json",

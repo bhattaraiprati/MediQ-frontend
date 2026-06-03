@@ -1,5 +1,4 @@
 import LoginPage from "@/pages/LoginPage"
-
 import { Route, Routes } from "react-router-dom"
 import ProtectedRoutes from "./ProtectedRoutes"
 import ChatPage from "@/pages/ChatPage"
@@ -17,6 +16,8 @@ const AppRoutes = () => {
 
       <Route element={<ProtectedRoutes  allowedRoles={["user"]}  />}>
         <Route path="/dashboard" element={<ChatPage />} />
+        <Route path="/change-password" element={<ChangePasswordPage />} />
+
       </Route>
 
       <Route element={<ProtectedRoutes allowedRoles={["admin"]} />}>
@@ -28,10 +29,6 @@ const AppRoutes = () => {
         </Route>
       </Route>
 
-      {/* <Route
-        path="/unauthorized"
-        element={<UnauthorizedPage />}
-      /> */}
     </Routes>
   );
 }

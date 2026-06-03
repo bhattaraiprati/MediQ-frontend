@@ -1,6 +1,6 @@
 import { getUserDetails, updateUserStatus } from "@/lib/dashboardApi";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search, UserCheck } from "lucide-react";
+import { Search } from "lucide-react";
 import { useState } from "react";
 
 interface UserDetails {

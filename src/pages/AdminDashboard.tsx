@@ -3,7 +3,7 @@ import { dashbaordStats, documentQueue, KnowledgeStats } from '@/lib/dashboardAp
 import { useQuery } from '@tanstack/react-query';
 import { 
   FileText, Users, BarChart3,  
-  Bell, Search, Plus, Upload, CheckCircle, AlertTriangle, 
+   Plus, Upload
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -204,35 +204,6 @@ function QueueItem({ name, size, progress, status }: any) {
     </div>
   );
 }
-
-// function RecentActivity() {
-//   return (
-//     <div className="lg:col-span-3 bg-white border border-gray-200 rounded-3xl p-6">
-//       <h3 className="font-semibold mb-5 flex items-center gap-3">
-//         <AlertTriangle className="w-5 h-5 text-amber-500" /> Recent Activity
-//       </h3>
-//       <div className="space-y-5">
-//         {[
-//           "ICU Formulary 2024.pdf uploaded & queued",
-//           "New user Dr. Ahmed Al-Farsi approved",
-//           "DrugInteractions_v3.csv indexed successfully",
-//         ].map((text, i) => (
-//           <div key={i} className="flex gap-4">
-//             <div className="w-8 h-8 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
-//               {i === 0 && <Upload className="w-4 h-4" />}
-//               {i === 1 && <Users className="w-4 h-4" />}
-//               {i === 2 && <CheckCircle className="w-4 h-4 text-emerald-600" />}
-//             </div>
-//             <div>
-//               <p className="text-sm">{text}</p>
-//               <p className="text-xs text-gray-500 mt-1">12 min ago</p>
-//             </div>
-//           </div>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// }
 
 interface KnowledgeResponse {
   success: boolean;
