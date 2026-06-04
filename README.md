@@ -1,120 +1,109 @@
+
 # MediQ Frontend
-
-MediQ is a premium Clinical Decision Support System (CDSS) frontend designed to provide clinical pharmacists, researchers, and medical professionals with evidence-based answers extracted directly from clinical literature. Built on top of a robust Retrieval-Augmented Generation (RAG) backend, this React interface allows users to initiate chats, manage historical consultations, and enables administrators to ingest new pharmaceutical files while monitoring processing queues in real-time.
-
+ 
+MediQ is a Clinical Decision Support System (CDSS) I built for clinical pharmacists, researchers, and medical professionals who need fast, evidence-backed answers from real clinical literature. Under the hood it runs a RAG (Retrieval-Augmented Generation) pipeline — so instead of getting generic AI responses, you get answers that are actually grounded in indexed pharmaceutical guidelines and documents. The frontend handles everything from starting a new chat to managing users and uploading new documents into the knowledge base.
+ 
 ---
-
-## Key Features
-
-### 1. Clinical Chat Interface (`/dashboard`)
-*   **Contextual RAG Q&A:** Submit complex medical queries to verify facts against indexed clinical guidelines and pharmaceutical catalogs.
-*   **Verified Medical Responses:** AI responses feature detailed clinical citations rendered cleanly using **React Markdown**.
-*   **Chronological Conversation Management:** Keep track of consultations with sidebar groups (e.g., *Today*, *Earlier*), dynamic title generation, and quick deletion controls.
-*   **Smooth Interactions:** Fully optimized chat interface with immediate feedback state, loading spinners, and scroll-to-bottom features.
-
-### 2. Admin Command Center (`/admin`)
-*   **System Analytics:** High-level dashboard showcasing stats such as *Total Indexed Documents*, *Total Users*, and *Blocked/Suspended Users*.
-*   **Real-time AI Processing Queue:** Direct visibility into the parsing, ingestion, and vectorization status of documents in the background queue.
-*   **Active Knowledge Base Breakdown:** Visual report tracking file formats (PDF, DOCX, TXT) currently integrated into the vector database.
-
-### 3. File Ingestion & Management (`/admin/documents`)
-*   **Drag-and-Drop Uploader:** Fully integrated dropzone supporting drag-and-drop actions for files including `.pdf`, `.docx`, `.doc`, and `.txt`.
-*   **Inline Queue Staging:** Preview files before triggering ingestion, complete with file type badges and validation details.
-*   **Secure Storage Viewer:** Browse through all uploaded documents, trace parsing chunks, and click to securely view original files hosted via Cloudinary.
-
-### 4. User Access Management (`/admin/users`)
-*   **Audit Directory:** Comprehensive database of registered users showing their profile images, active roles, and system authorization status.
-*   **Access Controls:** Toggle user statuses between **Active** and **Inactive** (suspended) to manage organization access instantly.
-
+ 
+## What It Can Do
+ 
+### Clinical Chat — `/dashboard`
+This is the core of the app. You type in a medical or pharmaceutical question, and the system goes through the indexed clinical documents to pull out a verified, cited answer. Responses are rendered cleanly with markdown so citations are easy to read. Past consultations are organized in a sidebar by time (Today, Earlier, etc.), and you can rename or delete any conversation. The whole chat experience is smooth — immediate loading states, auto-scroll, the works.
+ 
+### Admin Overview — `/admin`
+A high-level dashboard I built for system admins to get a quick snapshot of what's going on. It shows total indexed documents, total registered users, and how many accounts are blocked or suspended. There's also a live view of the document processing queue so you can see what's currently being parsed and ingested into the vector database.
+ 
+### Document Management — `/admin/documents`
+This is where admins upload new files into the knowledge base. I added a drag-and-drop uploader that accepts `.pdf`, `.docx`, `.doc`, and `.txt` files. Before anything gets sent, you get to preview what's in the queue with file type badges and basic validation info. Once uploaded, all documents are listed in a viewer where you can trace how they were chunked and access the original files stored on Cloudinary.
+ 
+### User Management — `/admin/users`
+A full directory of all registered users — their profile images, assigned roles, and current access status. Admins can toggle any user between **Active** and **Inactive** right from the table, which is useful for quickly suspending someone without going through a complex settings flow.
+ 
 ---
-
-## Technology Stack
-
-| Library / Framework | Purpose |
+ 
+## Tech Stack
+ 
+| Library / Framework | What I Used It For |
 | :--- | :--- |
-| **React 19** & **TypeScript** | Core application structure ensuring typed components, reusable interfaces, and reactive component lifecycles. |
-| **Vite 8** | Ultra-fast build tool and bundler enabling instant Hot Module Replacement (HMR). |
-| **Tailwind CSS v4** | Modern utility-first styling with inline native `@theme` tokens in [index.css](file:///d:/My%20Work/Rag%20Project/mediq-frontend/src/index.css). |
-| **TanStack React Query v5** | Server state management, auto-caching, mutation handlers, and query invalidation. |
-| **Zustand v5** | Lightweight, predictable client-state management for authentication sessions. |
-| **React Router DOM v7** | Declarative client-side routing, protected routes, and admin layouts. |
-| **Lucide React** | Consistent, modern vector iconography. |
-| **React Dropzone** | Dynamic HTML5 file upload drag-and-drop listener. |
-| **React Markdown** | Safe rendering of markdown strings and syntax highlighting for verified RAG citations. |
-| **jwt-decode** | Secure decryption of JWT payload data for client role validation. |
-
+| **React 19** & **TypeScript** | Core app structure — typed components, clean interfaces, reactive state |
+| **Vite 8** | Build tooling and dev server with instant HMR |
+| **Tailwind CSS v4** | All styling, using the new `@theme` token system in `index.css` |
+| **TanStack React Query v5** | Server state, caching, mutations, and query invalidation |
+| **Zustand v5** | Lightweight global state for auth sessions |
+| **React Router DOM v7** | Client-side routing, protected routes, and admin layouts |
+| **Lucide React** | Icons throughout the UI |
+| **React Dropzone** | The drag-and-drop file upload experience |
+| **React Markdown** | Rendering markdown in chat responses, including citations |
+| **jwt-decode** | Decoding JWT payloads on the client for role-based access |
+ 
 ---
-
-## Project Architecture
-
-The codebase follows a modular file architecture:
-
+ 
+## Project Structure
+ 
+I tried to keep things modular and easy to navigate:
+ 
 ```text
 mediq-frontend/
 ├── src/
-│   ├── assets/          # Static assets, SVG logos, and visual elements
-│   ├── components/      # Reusable UI widgets and layout views
-│   │   ├── auth/        # Authentication components (LoginForm, etc.)
-│   │   ├── chats/       # Chat pages sub-components (ChatMessage, etc.)
-│   │   ├── layout/      # Shared wrappers (AdminLayout, Sidebar)
-│   │   └── ui/          # Generic visual controls (Button, InputField, PopupModel, UploadModel)
-│   ├── hooks/           # Custom React hooks (useAuth)
-│   ├── lib/             # API client definitions and API handlers
-│   │   ├── api.ts          # Core authentication client, JWT headers, auto-logout
-│   │   ├── chatApi.ts      # Query submissions, chat room management
-│   │   ├── dashboardApi.ts # Stats, queues, profiles, user lists
-│   │   └── documentApi.ts  # Document lists, file uploads
-│   ├── pages/           # High-level route views (ChatPage, LoginPage, AdminDashboard, etc.)
-│   ├── routes/          # Navigation routers and Role Guards (AppRoutes, ProtectedRoutes)
-│   ├── store/           # Zustand client state definitions (authStore)
-│   ├── types/           # Global TypeScript declarations and interfaces
-│   ├── App.tsx          # App base configuration & auth initializer
-│   ├── index.css        # Tailwind config imports and custom theme values
-│   └── main.tsx         # Document Object Model (DOM) mount point
+│   ├── assets/          # Logos, SVGs, static images
+│   ├── components/      # Reusable UI pieces
+│   │   ├── auth/        # Login form and related components
+│   │   ├── chats/       # Chat-specific components like ChatMessage
+│   │   ├── layout/      # Shared wrappers — AdminLayout, Sidebar
+│   │   └── ui/          # Generic controls — Button, InputField, modals
+│   ├── hooks/           # Custom hooks (useAuth)
+│   ├── lib/             # All API logic
+│   │   ├── authapi.ts          # Base client, JWT headers, auto-logout on 401
+│   │   ├── chatApi.ts      # Chat room and query submission calls
+│   │   ├── dashboardApi.ts # Stats, queues, users, profiles
+│   │   └── documentApi.ts  # Document list and file upload endpoints
+│   ├── pages/           # Top-level route pages
+│   ├── routes/          # Route definitions and role-based guards
+│   ├── store/           # Zustand auth store
+│   ├── types/           # Shared TypeScript types and interfaces
+│   ├── App.tsx          # App root and auth initialization
+│   ├── index.css        # Tailwind config and custom theme tokens
+│   └── main.tsx         # DOM entry point
 ```
-
+ 
 ---
-
-## Installation & Setup
-
-### 1. Prerequisites
-Ensure you have the following installed on your machine:
-*   [Node.js](https://nodejs.org/) (v18.x or above recommended)
-*   [npm](https://www.npmjs.com/) (v9.x or above) or **Yarn**
-*   Running **MediQ Backend Server** (defaults to `http://localhost:5000`)
-
-### 2. Getting Started
-Clone the repository and install the project dependencies:
+ 
+## Getting It Running
+ 
+### Prerequisites
+Make sure you have these installed before anything else:
+- [Node.js](https://nodejs.org/) v18 or higher
+- npm v9+ or Yarn
+- The **MediQ backend** running at `http://localhost:5000`
+### Installation
+ 
 ```bash
-# Clone the repository
+# Clone the repo
 git clone https://github.com/bhattaraiprati/MediQ-frontend.git
 cd mediq-frontend
-
+ 
 # Install dependencies
 npm install
 ```
-
-### 3. Running in Development
-Start the local Vite development server:
+ 
+### Development Server
+ 
 ```bash
 npm run dev
 ```
-The server will start, typically accessible at `http://localhost:5173`. Make sure the backend server is running concurrently at `http://localhost:5000` to handle user login, document uploading, and RAG chats.
-
-
-
+ 
+The app will be up at `http://localhost:5173`. Keep the backend running at `http://localhost:5000` at the same time — that's what handles auth, document uploads, and the RAG queries.
+ 
 ---
+ 
+## API Configuration
 
-##  API & Endpoint Configuration
+All the base API settings live in `src/lib/api.ts`:
 
-The API base connection details are managed inside [api.ts](file:///d:/My%20Work/Rag%20Project/mediq-frontend/src/lib/api.ts):
-
-*   **BASE_URL:** `http://localhost:5000/api`
-*   **TOKEN_KEY:** `mediq_token`
-*   **USER_KEY:** `mediq_user`
-
-### JWT Interceptor and Authentication
-Requests automatically attach the bearer token to requests using the `Authorization: Bearer <token>` header. If the server responds with a `401 Unauthorized` status (e.g. token expired), the frontend automatically logs out the user and redirects to the login page.
+- **Base URL:** `http://localhost:5000/api`
+- **Token key:** `mediq_token`
+- **User key:** `mediq_user`
+Every request automatically gets the `Authorization: Bearer <token>` header attached. If the server ever returns a `401` (say, because the token expired), the app logs the user out and kicks them back to the login page automatically — no manual handling needed on the UI side.
 
 ---
 
