@@ -121,11 +121,17 @@ Requests automatically attach the bearer token to requests using the `Authorizat
 
 ## Demo & Screenshots
 
+### Login Page
 ![Login page](src/assets/images/login.png)
+### Chat Page
 ![Chat page](src/assets/images/chatpage.png)
+### Chat Response Page
 ![Chat Response Page](src/assets/images/chat-response.png)
+### Admin Dashboard Page
 ![Admin Dashboard Page](src/assets/images/admin-dashboard.png)
+### Admin Documents uplaod Page
 ![Admin Documents uplaod Page](src/assets/images/admin-document.png)
+### Admin Users Management Page
 ![Admin Users Management Page](src/assets/images/admin-users.png)
 
 ---
